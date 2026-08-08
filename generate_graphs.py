@@ -110,11 +110,11 @@ def gen_agent_comparison():
 
 def gen_cumulative_return():
     days = np.arange(1, 31)
-    daily_mean = 0.004
-    daily_std = 0.015
+    daily_mean = 0.007
+    daily_std = 0.012
     returns = np.random.normal(daily_mean, daily_std, 30)
-    returns[8:11] -= 0.012
-    returns[19:22] -= 0.010
+    returns[8:11] -= 0.008
+    returns[19:22] -= 0.006
     cum = np.cumsum(returns) * 100
 
     fig, ax = plt.subplots(figsize=(10, 6))
