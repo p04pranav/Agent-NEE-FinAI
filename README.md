@@ -154,11 +154,11 @@ flowchart TD
 
 ## 📈 Performance Results
 
-![Prediction Accuracy](visuals/accuracy_over_time.png)
-
-![Agent Comparison](visuals/agent_comparison.png)
-
-![Cumulative Return](visuals/cumulative_return.png)
+> **Backtest in progress.** Real prediction accuracy, agent comparison, and
+> cumulative return results will be added after running the system with live
+> LLM inference on historical NSE data.
+>
+> ![Backtest Pending](visuals/backtest_pending.png)
 
 ---
 

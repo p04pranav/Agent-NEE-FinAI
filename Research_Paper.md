@@ -306,8 +306,8 @@ After market close (15:30 IST), the system automatically initiates fine-tuning u
 5. **Validation**: 10% split with automatic rollback if validation loss exceeds the previous best
 6. **Checkpointing**: Versioned adapter storage with automatic cleanup (max 10 adapters retained)
 
-![Figure 3: Training Loss Curve](visuals/training_loss.png)
-*Figure 3: LoRA SFT training loss across 3 epochs, showing convergence from approximately 0.85 to 0.42, with validation loss tracking training loss without significant divergence*
+![Figure 3: Backtest Pending](visuals/backtest_pending.png)
+*Figure 3: LoRA SFT training loss curve — backtest results pending. Will be updated after running the self-learning pipeline on historical NSE data.*
 
 #### LoRA Hyperparameters
 
@@ -428,14 +428,25 @@ We compare Agent-NEE against four baselines:
 3. **Traditional Technical Analysis**: Rule-based signals from indicators alone (e.g., RSI > 70 = SELL) — represents the classical algorithmic approach
 4. **Buy-and-Hold**: 0% directional accuracy benchmark (always predicts the same direction) — represents the passive investment alternative
 
-![Figure 4: Confidence Calibration](visuals/confidence_calibration.png)
-*Figure 4: Confidence calibration plot showing predicted confidence levels (LOW, MED, HIGH) against observed accuracy, demonstrating that higher confidence predictions correspond to higher realized accuracy*
+### 7.2 Expected Performance
 
-![Figure 5: Prediction vs Actual](visuals/pred_vs_actual.png)
-*Figure 5: Scatter plot of predicted directional returns versus actual returns across all resolved predictions, with the diagonal representing perfect prediction*
+Based on published literature on LLM-based financial prediction systems
+[1][2][3], Agent-NEE's multi-agent architecture is designed to achieve:
 
-![Figure 6: Accuracy by Ticker](visuals/accuracy_by_ticker.png)
-*Figure 6: Per-ticker directional prediction accuracy across the 10 NSE equities, showing variance in prediction quality across different sectors and capitalizations*
+| Metric | Target | Basis |
+|--------|--------|-------|
+| Directional accuracy | 62%+ | Multi-agent ensemble consensus [5] |
+| HIGH confidence accuracy | 70%+ | Strong agent agreement signal |
+| MED confidence accuracy | 55-65% | Partial agent agreement |
+| LOW confidence accuracy | 40-50% | Agent disagreement / uncertain |
+
+![Backtest Pending](visuals/backtest_pending.png)
+*Figures 4-6: Backtest results pending — accuracy by confidence level, prediction vs actual correlation, and directional accuracy by ticker will be updated after running the system on historical NSE data.*
+
+### 7.3 Expected Latency Profile
+
+![Expected Latency](visuals/latency_profile.png)
+*Figure 7: Expected inference latency distribution based on hardware benchmarks. GPU mode processes 10 tickers with ~800ms mean latency; CPU mode processes 3 tickers with ~4s mean latency.*
 
 ### 7.3 Hardware Testing Matrix
 

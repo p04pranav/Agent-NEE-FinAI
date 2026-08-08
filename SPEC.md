@@ -338,16 +338,19 @@ Auto-detected at startup. CPU caps at 3 tickers for acceptable latency; GPU enab
 
 ---
 
-## 16. Graphs
+## 16. Performance Results
 
-### Training Loss
-![Training Loss](visuals/training_loss.png)
+> **Backtest pending.** Real accuracy, confidence calibration, per-ticker, and
+> prediction-vs-actual results will be added after live inference testing on
+> historical NSE data.
+>
+> ![Backtest Pending](visuals/backtest_pending.png)
 
-### Confidence Calibration
-![Confidence Calibration](visuals/confidence_calibration.png)
+### 16.1 Expected Latency Profile
 
-### Accuracy by Ticker
-![Accuracy by Ticker](visuals/accuracy_by_ticker.png)
+Based on hardware benchmarks, the system is expected to achieve the following
+inference latency distribution:
 
-### Prediction vs Actual
-![Prediction vs Actual](visuals/pred_vs_actual.png)
+![Expected Latency Profile](visuals/latency_profile.png)
+*Figure: Expected inference latency distribution — GPU mode (10 tickers, ~800ms mean)
+vs CPU mode (3 tickers, ~4s mean). Actual performance may vary by hardware.*
