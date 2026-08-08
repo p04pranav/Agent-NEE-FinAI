@@ -3,7 +3,7 @@
 **Author**: Pranav S  
 **Affiliation**: Independent Researcher  
 **Date**: August 2026  
-**Correspondence**: pranav.s@agent-nee.dev
+**Correspondence**: yo4pranav@gmail.com
 
 ---
 
