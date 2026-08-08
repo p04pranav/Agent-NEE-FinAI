@@ -15,7 +15,7 @@ A local, AI-powered stock price prediction system for the Indian equity market (
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)
 ![Ollama](https://img.shields.io/badge/Ollama-Local_LLM-000000?style=flat&logo=ollama&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-00b300?style=flat)
+![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-00b300?style=flat)
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=flat)
 
 `🔒 100% Local` · `📈 10 NSE Tickers` · `☁️ Zero Cloud APIs` · `📊 CSV Simulation`
