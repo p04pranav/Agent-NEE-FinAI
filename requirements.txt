@@ -1,0 +1,20 @@
+# Agent-NEE FinAI — Core Dependencies
+# Install: pip install -r requirements.txt
+
+requests>=2.31.0
+rich>=13.7.0
+pandas>=2.0.0
+pandas-ta>=0.4.71b0
+matplotlib>=3.8.0
+holidays>=0.40
+pyarrow>=14.0.0
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+
+# Training dependencies (CUDA 12.1+ & 12 GB VRAM only)
+# Uncomment below to enable LoRA SFT training:
+# torch>=2.1.0 --index-url https://download.pytorch.org/whl/cu121
+# transformers>=4.44.0
+# peft>=0.12.0
+# datasets>=2.21.0
+# accelerate>=0.34.0

@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+models/adapters/*/models
+data/
+charts/
+logs/
+*.log
+.DS_Store
+venv/
+.venv/

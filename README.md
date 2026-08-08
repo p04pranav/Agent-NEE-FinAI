@@ -18,13 +18,13 @@ A local, AI-powered stock price prediction system for the Indian equity market (
 ![License](https://img.shields.io/badge/License-MIT-00b300?style=flat)
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=flat)
 
-`🔒 100% Local` · `📈 10 NSE Tickers` · `☁️ Zero Cloud APIs`
+`🔒 100% Local` · `📈 10 NSE Tickers` · `☁️ Zero Cloud APIs` · `📊 CSV Simulation`
 
 </div>
 
 ---
 
-## What Does It Do?
+## 🤖 What Does It Do?
 
 > **Agent-NEE runs 3 specialist AI agents on your local machine — a Technical Analyst, a Volatility Analyst, and a Volume Analyst — each independently analyzing NSE stock data. A Synthesizer then merges their outputs into a single prediction:**
 >
@@ -36,21 +36,22 @@ A local, AI-powered stock price prediction system for the Indian equity market (
 
 ---
 
-## The Problem vs. The Solution
+## ❌ The Problem vs. ✅ The Solution
 
 | ❌ **The Problem** | ✅ **The Solution** |
 |---|---|
 | Cloud AI APIs (OpenAI, Anthropic) charge per-token and scale with usage | **Zero-cost inference** via local Ollama — no API keys, no billing |
 | Sending portfolio data to third-party servers raises privacy concerns | **100% local execution** — data never leaves your machine |
 | Most AI tools ignore Indian market nuances (IST timing, NSE tickers, holidays) | **NSE-native design** — Indian holidays, IST timezone, NSE ticker format built-in |
+| External market APIs require credentials, rate limits, and paid subscriptions | **CSV simulation** — realistic OHLCV data from local files, zero API dependencies |
 | Existing algo-trading tools require programming expertise or expensive terminals | **Web dashboard** — browser-based UI, no terminal or coding skills required |
 
 ---
 
-## How It Works
+## ⚙️ How It Works
 
 ```
-📊 Market Data (Dhan API or Mock)
+📊 CSV Market Data (data/ directory)
         │
         ▼
 🔢 Technical Indicators (VWAP, RSI, MACD, Bollinger Bands, ATR)
@@ -76,16 +77,16 @@ A local, AI-powered stock price prediction system for the Indian equity market (
 
 ---
 
-## Key Features
+## 🚀 Key Features
 
 > **🤖 Multi-Agent Prediction Squad**
 > Three specialist AI agents (Technical, Volatility, Volume) independently analyze market data, then a Synthesizer merges their outputs. Diverse perspectives reduce single-model bias.
 
 > **📋 Two-Phase Parquet Ledger**
-> Phase 1 logs predictions in real-time with UUID tracking. Phase 2 resolves predictions against actual market outcomes ~5 minutes later. Enables accuracy tracking and training data generation.
+> Phase 1 logs predictions in real-time with UUID tracking. Phase 2 resolves predictions against actual market outcomes ~5 minutes later using fresh prices. Enables accuracy tracking and training data generation.
 
 > **🎯 LoRA SFT Post-Market Training**
-> After market close, the system automatically fine-tunes the model using correct predictions. Supervised fine-tuning (not reinforcement learning) — always converges, ~90% first-attempt success rate.
+> After market close, the system automatically fine-tunes the model using correct predictions. Supervised fine-tuning (not reinforcement learning) — always converges, ~90% first-attempt success rate. Validation rollback prevents degradation.
 
 > **🖥️ Real-Time Web Dashboard**
 > Terminal-themed (green-on-black) browser dashboard served via FastAPI + WebSocket. Live candlestick charts (TradingView), prediction cards, agent activity, and performance metrics at 1 FPS.
@@ -93,17 +94,17 @@ A local, AI-powered stock price prediction system for the Indian equity market (
 > **⚡ Hardware Auto-Detection**
 > Runs on anything from a MacBook to a GPU workstation. Auto-detects CUDA, VRAM, and CPU at startup. CPU mode: 3 tickers. GPU mode: all 10 tickers. Zero configuration.
 
-> **🔄 Built-in Mock Data Fallback**
-> Works without Dhan API credentials. Generates realistic OHLCV data for all 10 tickers. Perfect for development, testing, and demos.
+> **📊 CSV Simulation Data**
+> Ships with historical OHLCV CSV files for all 10 tickers. No external API credentials needed. Generates data locally via `generate_csv.py`. Perfect for development, testing, and demos.
 
 ---
 
-## Architecture
+## 🏗️ Architecture
 
 ```mermaid
 flowchart TD
     A["main.py<br/>Orchestrator + Event Loop"] --> B{"Market Hours?"}
-    B -->|"09:25-15:15 IST"| C["dhan_client.py<br/>Dhan API / Mock Data"]
+    B -->|"09:25-15:15 IST"| C["data_source.py<br/>CSV OHLCV Loader"]
     B -->|"15:30 IST"| D["learn.py<br/>LoRA SFT Training<br/>(CUDA 12.1+ & 12GB only)"]
 
     C --> E["indicators.py<br/>VWAP, RSI, MACD, BB, ATR"]
@@ -124,9 +125,9 @@ flowchart TD
     F --> I
 
     J --> K["ledger.py<br/>Phase 1 Write (UUID)"]
-    K -->|"T+5 min"| L["ledger.py<br/>Phase 2 Resolution"]
-    K --> M["dashboard.py<br/>DashboardState"]
-    M --> N["web_server.py<br/>FastAPI + WebSocket"]
+    K -->|"T+5 min"| L["ledger.py<br/>Phase 2 Resolution<br/>(fresh prices)"]
+    K --> M["dashboard.py<br/>DashboardState (deepcopy)"]
+    M --> N["web_server.py<br/>FastAPI + WebSocket<br/>(localhost, auth, CSP)"]
     N --> O["Browser<br/>Terminal Dark Theme"]
 
     D --> P["models/adapters/<br/>LoRA Checkpoints"]
@@ -151,42 +152,35 @@ flowchart TD
 
 ---
 
-## Quick Start
+## 📈 Performance Results
 
-### 1. Clone & Install
+![Prediction Accuracy](visuals/accuracy_over_time.png)
+
+![Agent Comparison](visuals/agent_comparison.png)
+
+![Cumulative Return](visuals/cumulative_return.png)
+
+---
+
+## 🏁 Quick Start
+
+### One-Command Launch
 
 ```bash
 git clone https://github.com/p04pranav/Agent-NEE-FinAI.git
 cd Agent-NEE-FinAI
-pip install -r requirements.txt
+./start.sh
 ```
 
-### 2. Install Ollama
+**That's it.** The script installs dependencies, pulls the Ollama model, and launches the system. The web dashboard auto-opens at **http://localhost:8080/web/index.html**.
 
-```bash
-curl -fsSL https://ollama.com/install.sh | sh
-ollama pull phi3:mini
-```
+> **Windows?** Run `start.bat` instead.
 
-### 3. Configure (Optional)
-
-```bash
-cp .env.example .env
-# Edit .env with your Dhan API credentials
-# If skipped, the system uses mock data automatically
-```
-
-### 4. Run
-
-```bash
-python main.py
-```
-
-The web dashboard auto-opens at **http://localhost:8080/web/index.html**
+No `.env` file. No API keys. No credentials to configure. Everything runs from local CSV data.
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)
 ![Ollama](https://img.shields.io/badge/Ollama-REST_API-000000?style=flat&logo=ollama&logoColor=white)
@@ -201,80 +195,49 @@ The web dashboard auto-opens at **http://localhost:8080/web/index.html**
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 Agent-NEE/
 ├── main.py                  # Entry point: hardware probe, event loop
 ├── config.py                # All configuration constants
 ├── agents.py                # LocalBandSDK + agent roles + synthesis prompt
-├── dhan_client.py           # Dhan API wrapper + mock data fallback
-├── market.py                # IST market hours gate
-├── indicators.py            # pandas-ta technical indicators
+├── data_source.py           # CSV OHLCV loader (cycle-by-cycle cursor)
+├── generate_csv.py          # Generate simulated OHLCV CSV data
+├── generate_graphs.py       # Generate performance visualizations
+├── indicators.py            # pandas-ta technical indicators (VWAP daily reset)
 ├── predict.py               # PredictionSquad: multi-agent orchestration
-├── ledger.py                # Two-phase Parquet ledger + replay buffer
-├── learn.py                 # LoRA SFT training (subprocess)
+├── ledger.py                # Two-phase Parquet ledger + UUID matching
+├── learn.py                 # LoRA SFT training (subprocess, validation rollback)
 ├── charts.py                # matplotlib saved reports
-├── dashboard.py             # DashboardState thread-safe data container
-├── web_server.py            # FastAPI + WebSocket broadcast
+├── dashboard.py             # DashboardState thread-safe data container (deepcopy)
+├── web_server.py            # FastAPI + WebSocket (localhost, CSP, auth)
 ├── utils.py                 # Logging, exceptions, retry decorators
-├── web/                     # Frontend (terminal theme)
+├── web/                     # Frontend (terminal theme, XSS-safe)
 │   ├── index.html
 │   ├── css/styles.css
 │   └── js/
-│       ├── app.js           # WebSocket client + DOM updates
+│       ├── app.js           # WebSocket client + escapeHtml XSS prevention
 │       ├── charts.js        # Chart.js (accuracy, scatter, latency)
 │       └── candlestick.js   # TradingView Lightweight Charts
+├── data/                    # Simulated OHLCV CSV files (10 tickers)
+├── visuals/                 # Performance graphs (accuracy, agents, returns)
+│   ├── accuracy_over_time.png
+│   ├── agent_comparison.png
+│   ├── cumulative_return.png
+│   └── ...                  # Additional diagnostic plots
+├── models/                  # LoRA adapter checkpoints
 ├── requirements.txt
-├── setup.sh / setup.bat
-├── .env.example
+├── start.sh / start.bat     # One-command startup scripts
+├── setup.sh / setup.bat     # Manual setup scripts
+├── SPEC.md                  # Technical specification
+├── Research_Paper.md        # Academic research paper
 └── .gitignore
 ```
 
 ---
 
-## Performance
-
-- **Full cycle (GPU, 10 tickers)** — target: < 20s, max: < 60s
-- **Full cycle (CPU, 3 tickers)** — target: < 15s, max: < 45s
-- **Single agent inference (GPU)** — target: < 500ms, max: < 2s
-- **Single agent inference (CPU)** — target: < 3s, max: < 10s
-- **Dashboard state update** — target: < 1ms, max: < 5ms
-- **WebSocket broadcast** — target: < 10ms, max: < 50ms
-- **Prediction accuracy target** — 62%+ (better than random)
-
----
-
-<details>
-<summary><strong>🖥️ Dashboard Preview</strong></summary>
-
-```
-┌───────────────────────────────────────────────────────────────────────────┐
-│  [MODE: INFERENCE ONLY] [UPTIME: 2h 34m] [ACC: 62.3%] [TKRS: 3/10]     │
-├─────────────────────────────────┬────────────────────────────────────────┤
-│                                 │  PREDICTIONS                           │
-│  RELIANCE                       │  RELIANCE  [UP]   +1.24%  ████████    │
-│  ▲ 2,855.00  +12.50 (0.44%)    │  TCS       [DN]   -0.52%  ████        │
-│  ┌───────────────────────────┐ │  HDFCBANK  [UP]   +0.81%  ██████      │
-│  │    ╱╲   ╱╲   ╱╲          │ │  INFY      [--]    0.00%  ██          │
-│  │   ╱  ╲ ╱  ╲ ╱  ╲         │ │  ICICIBANK [UP]   +1.13%  ███████     │
-│  │  ╱    ╲╱    ╲╱    ╲        │ ├────────────────────────────────────────┤
-│  │  ██  ██  ██  ██  ██  ██   │ │  AGENT ACTIVITY — RELIANCE             │
-│  │       VOLUME HISTOGRAM     │ │  [TECH] Tech Analyst  0.8s             │
-│  └───────────────────────────┘ │  [VOL]  Vol Analyst   0.7s             │
-│  ◄ RELIANCE TCS HDFCBANK ►    │  [SYN]  Synthesizer   0.5s             │
-├─────────────────────────────────┴────────────────────────────────────────┤
-│  ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐         │
-│  │ Accuracy Trend   │ │ Pred vs Actual   │ │ Latency Trend    │         │
-│  │ ~~~~~~~~~~~~     │ │  *  *    *       │ │ ~~~~~~~~~~~~     │         │
-│  └──────────────────┘ └──────────────────┘ └──────────────────┘         │
-└───────────────────────────────────────────────────────────────────────────┘
-```
-
-</details>
-
-<details>
-<summary><strong>📱 Device Compatibility</strong></summary>
+## 🖥️ Device Compatibility
 
 | Device | Inference | Dashboard | Training |
 |--------|-----------|-----------|----------|
@@ -288,11 +251,9 @@ Agent-NEE/
 | Intel Arc A770 | ✅ | ✅ | ❌ |
 | WSL2 + T4/3060 | ✅ | ✅ | ✅ |
 
-</details>
-
 ---
 
-## Target Tickers
+## 📊 Target Tickers
 
 | Ticker | Sector | | Ticker | Sector |
 |--------|--------|---|--------|--------|
@@ -304,24 +265,15 @@ Agent-NEE/
 
 ---
 
-## Documentation
+## 📚 Documentation
 
-> 📄 **[PRD.md](PRD.md)** — Product vision, user personas, 6 core features, 15 functional requirements, success metrics
+> 📄 **[SPEC.md](SPEC.md)** — Technical specification: architecture, data pipeline, agent prompts, configuration
 
-> 🔧 **[TRD.md](TRD.md)** — Tech stack with exact versions, 60+ configuration parameters, memory management, error handling
-
-> 🎨 **[UI_UX_Design.md](UI_UX_Design.md)** — Terminal dark theme, color palette, 5 component specs, WebSocket format, Chart.js config
-
-> 🔄 **[Appflow.md](Appflow.md)** — 9-step startup, prediction event loop, market hours gate, overlapping cycles, 16 edge cases
-
-> 🗄️ **[Backend_Schema.md](Backend_Schema.md)** — Parquet schema (33 columns), agent prompts, LocalBandSDK, Dhan API contract
-
-> 📋 **[Implementation_Plan.md](Implementation_Plan.md)** — 5-phase roadmap (14 days), per-module tests, latency benchmarks
+> 📝 **[Research_Paper.md](Research_Paper.md)** — Academic paper: multi-agent architecture, two-phase ledger, LoRA SFT pipeline
 
 ---
 
-<details>
-<summary><strong>🧠 Design Decisions</strong></summary>
+## 🧠 Design Decisions
 
 | Decision | Choice | Why |
 |----------|--------|-----|
@@ -330,18 +282,18 @@ Agent-NEE/
 | JSON Enforcement | Ollama GBNF (built-in) | Token-level constraint, zero dependencies |
 | Training | LoRA SFT (not GRPO) | Always converges, ~90% first-attempt success |
 | Agent System | 3 + synthesizer | Technical + Volatility + Volume. Cross-ticker removed for latency |
+| Data Source | Local CSV files | Zero API dependencies, works offline, reproducible |
 | Storage | Parquet with UUID | Type-safe, efficient, exact Phase 1→Phase 2 matching |
 | Dashboard | FastAPI + WebSocket | Browser-accessible, real-time, no terminal dependency |
-
-</details>
+| Security | localhost + CSP + XSS escape | Defense-in-depth for local dashboard |
 
 ---
 
-## License
+## 📜 License
 
 MIT License — See [LICENSE](LICENSE) for details.
 
-## Author
+## 👤 Author
 
 **Pranav S** — [github.com/p04pranav](https://github.com/p04pranav)
 

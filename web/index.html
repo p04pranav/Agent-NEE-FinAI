@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent-NEE Terminal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+    <!-- Status Bar -->
+    <header id="status-bar">
+        <span id="mode-badge" class="terminal-badge">MODE: INFERENCE ONLY</span>
+        <span id="uptime">UPTIME: 0h 0m</span>
+        <span id="accuracy">ACC: --</span>
+        <span id="cycles">CYCLES: 0</span>
+        <span id="data-source" class="terminal-warn">DATA: MOCK</span>
+        <span id="ticker-count">TKRS: 0/10</span>
+    </header>
+
+    <!-- Main Layout -->
+    <main id="dashboard">
+        <section id="candlestick-section">
+            <div id="candlestick-header">
+                <span id="active-ticker-label">RELIANCE</span>
+                <span id="ticker-price" class="price-up">--</span>
+                <span id="ticker-change" class="price-up">--</span>
+            </div>
+            <div id="candlestick-chart"></div>
+            <div id="ticker-strip"></div>
+        </section>
+        <aside id="right-panel">
+            <section id="prediction-panel">
+                <div class="panel-header">PREDICTIONS</div>
+                <div id="predictions-list"></div>
+            </section>
+            <section id="agent-panel">
+                <div class="panel-header">AGENT ACTIVITY</div>
+                <div id="agents-list"></div>
+            </section>
+        </aside>
+    </main>
+
+    <!-- AI Charts -->
+    <section id="charts-section">
+        <div class="chart-container">
+            <div class="chart-label">ACCURACY TREND (20)</div>
+            <canvas id="accuracy-chart"></canvas>
+        </div>
+        <div class="chart-container">
+            <div class="chart-label">PRED vs ACTUAL</div>
+            <canvas id="scatter-chart"></canvas>
+        </div>
+        <div class="chart-container">
+            <div class="chart-label">LATENCY (ms)</div>
+            <canvas id="latency-chart"></canvas>
+        </div>
+    </section>
+
+    <script src="js/candlestick.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
