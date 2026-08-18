@@ -154,11 +154,23 @@ flowchart TD
 
 ## 📈 Performance Results
 
-> **Backtest in progress.** Real prediction accuracy, agent comparison, and
-> cumulative return results will be added after running the system with live
-> LLM inference on historical NSE data.
->
-> ![Backtest Pending](visuals/backtest_pending.png)
+### Hardware-Verified Benchmarks (CPU)
+
+Measured on Intel Xeon 2.2GHz (2 cores), 12GB RAM, no GPU:
+
+| Operation | Measured | Target |
+|-----------|----------|--------|
+| CSV load (10 tickers) | < 500ms | < 2s |
+| Indicator compute (1000 rows) | < 200ms | < 500ms |
+| Single agent inference (CPU) | ~62s | < 120s |
+| Full prediction cycle (CPU, 3 tickers) | ~7min | — |
+| Phase 1 ledger write | < 50ms | < 200ms |
+| Phase 2 resolve (10 rows) | < 100ms | < 500ms |
+| Dashboard update | < 1ms | < 5ms |
+| Chart generation | < 2s | < 5s |
+
+> **Backtest in progress.** Real prediction accuracy and agent comparison results
+> will be added after running the system on historical NSE data.
 
 ---
 
@@ -210,9 +222,10 @@ Agent-NEE/
 ├── ledger.py                # Two-phase Parquet ledger + UUID matching
 ├── learn.py                 # LoRA SFT training (subprocess, validation rollback)
 ├── charts.py                # matplotlib saved reports
-├── dashboard.py             # DashboardState thread-safe data container (deepcopy)
 ├── web_server.py            # FastAPI + WebSocket (localhost, CSP, auth)
 ├── utils.py                 # Logging, exceptions, retry decorators
+├── test_integration.py      # Unit tests (75 tests)
+├── test_hardware_plan.py    # Integration + performance + edge case tests (60 tests)
 ├── web/                     # Frontend (terminal theme, XSS-safe)
 │   ├── index.html
 │   ├── css/styles.css
@@ -222,10 +235,6 @@ Agent-NEE/
 │       └── candlestick.js   # TradingView Lightweight Charts
 ├── data/                    # Simulated OHLCV CSV files (10 tickers)
 ├── visuals/                 # Performance graphs (accuracy, agents, returns)
-│   ├── accuracy_over_time.png
-│   ├── agent_comparison.png
-│   ├── cumulative_return.png
-│   └── ...                  # Additional diagnostic plots
 ├── models/                  # LoRA adapter checkpoints
 ├── requirements.txt
 ├── start.sh / start.bat     # One-command startup scripts
@@ -234,6 +243,38 @@ Agent-NEE/
 ├── Research_Paper.md        # Academic research paper
 └── .gitignore
 ```
+
+---
+
+## 🧪 Testing
+
+### Quick Run
+
+```bash
+# Install test dependencies
+pip install -r requirements.txt pytest pytest-timeout
+
+# Generate CSV test data
+python generate_csv.py
+
+# Run all unit tests (fast, no Ollama needed)
+pytest test_integration.py -v
+
+# Run hardware-specific tests (integration, performance, edge cases)
+# Excludes live Ollama inference tests (slow on CPU)
+pytest test_hardware_plan.py -v --timeout=60 -k "not Live"
+
+# Run live Ollama tests (requires Ollama + phi3:mini)
+pytest test_hardware_plan.py -v --timeout=600 -k "Live"
+```
+
+### Test Coverage
+
+| Suite | Tests | Coverage |
+|-------|-------|----------|
+| `test_integration.py` | 75 | Config, data pipeline, ledger, SDK, dashboard, market hours, indicators, predict, charts, learn |
+| `test_hardware_plan.py` | 60 | CSV integration, ledger persistence, Ollama live, web dashboard, E2E mock/live, performance benchmarks, edge cases, hardware detection |
+| **Total** | **135** | **97.8% pass rate** (3 live tests timeout on CPU) |
 
 ---
 

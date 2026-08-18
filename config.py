@@ -46,7 +46,7 @@ MODEL_NAME = "phi3:mini"
 OLLAMA_BASE_URL = "http://localhost:11434"
 OLLAMA_API_GENERATE = f"{OLLAMA_BASE_URL}/api/generate"
 OLLAMA_API_TAGS = f"{OLLAMA_BASE_URL}/api/tags"
-OLLAMA_TIMEOUT = 30
+OLLAMA_TIMEOUT = 120
 
 # ─── Inference Parameters ────────────────────────────────────────────
 INFERENCE_TEMPERATURE = 0.3

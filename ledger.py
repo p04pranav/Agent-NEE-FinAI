@@ -260,7 +260,7 @@ def update_replay_buffer():
     # Trim to 30 trading days (~45 calendar days)
     if "timestamp" in combined.columns:
         combined["timestamp"] = pd.to_datetime(combined["timestamp"])
-        cutoff = pd.Timestamp.now() - pd.Timedelta(days=45)
+        cutoff = pd.Timestamp.now(tz=IST) - pd.Timedelta(days=45)
         combined = combined[combined["timestamp"] >= cutoff]
 
     combined.to_parquet(buffer_path, index=False)

@@ -58,9 +58,9 @@ def ollama_generate(
         response.raise_for_status()
         result = response.json()
         return result.get("response", "")
-    except requests.exceptions.ConnectionError:
+    except requests.exceptions.ConnectionError as e:
         raise utils.OllamaError("Ollama not running. Start with: ollama serve") from e
-    except requests.exceptions.Timeout:
+    except requests.exceptions.Timeout as e:
         raise utils.OllamaError(f"Ollama request timed out after {config.OLLAMA_TIMEOUT}s") from e
     except Exception as e:
         raise utils.OllamaError(f"Ollama API error: {e}") from e

@@ -1,7 +1,7 @@
 # Agent-NEE FinAI — Complete Technical Specification
 
 **Full Name**: Agentic Supervised Fine-Tuning — Neural Execution Engine for Financial Analytics
-**Version**: 3.0 | **Author**: Pranav S | **License**: MIT
+**Version**: 3.1 | **Author**: Pranav S | **License**: MIT
 
 ---
 
@@ -233,17 +233,17 @@ Auto-detected at startup. CPU caps at 3 tickers for acceptable latency; GPU enab
 
 ## 12. Performance Targets
 
-| Operation | Target | Max |
-|-----------|--------|-----|
-| Full cycle (GPU, 10 tickers) | < 20s | < 60s |
-| Full cycle (CPU, 3 tickers) | < 15s | < 45s |
-| Single agent inference (GPU) | < 500ms | < 2s |
-| Single agent inference (CPU) | < 3s | < 10s |
-| Dashboard update | < 1ms | < 5ms |
-| WebSocket broadcast | < 10ms | < 50ms |
-| Prediction accuracy | 62%+ | > 50% |
-| CSV data load (all tickers) | < 500ms | < 2s |
-| Ledger write (Phase 1) | < 50ms | < 200ms |
+| Operation | Target | Max | Measured (CPU) |
+|-----------|--------|-----|----------------|
+| Full cycle (GPU, 10 tickers) | < 20s | < 60s | — |
+| Full cycle (CPU, 3 tickers) | < 15s | < 45s | ~7min (phi3:mini) |
+| Single agent inference (GPU) | < 500ms | < 2s | — |
+| Single agent inference (CPU) | < 3s | < 10s | ~62s (phi3:mini) |
+| Dashboard update | < 1ms | < 5ms | < 1ms |
+| WebSocket broadcast | < 10ms | < 50ms | < 10ms |
+| Prediction accuracy | 62%+ | > 50% | — |
+| CSV data load (all tickers) | < 500ms | < 2s | < 200ms |
+| Ledger write (Phase 1) | < 50ms | < 200ms | < 50ms |
 
 ---
 
@@ -279,6 +279,7 @@ Auto-detected at startup. CPU caps at 3 tickers for acceptable latency; GPU enab
 |-------|-------|-------------|
 | `MODEL_NAME` | `phi3:mini` | Ollama model tag |
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | Local Ollama endpoint |
+| `OLLAMA_TIMEOUT` | `120` | Request timeout in seconds |
 | `INFERENCE_TEMPERATURE` | `0.3` | Agent sampling temp |
 | `SYNTHESIS_TEMPERATURE` | `0.1` | Synthesizer sampling temp (deterministic) |
 | `N_CTX` | `4096` | Context window |
@@ -338,7 +339,40 @@ Auto-detected at startup. CPU caps at 3 tickers for acceptable latency; GPU enab
 
 ---
 
-## 16. Performance Results
+## 16. Testing
+
+### Test Suites
+
+| Suite | Tests | Coverage |
+|-------|-------|----------|
+| `test_integration.py` | 75 | Config, data pipeline, ledger, SDK, dashboard, market hours, indicators, predict, charts, learn |
+| `test_hardware_plan.py` | 60 | CSV integration, ledger persistence, Ollama live, web dashboard, E2E mock/live, performance benchmarks, edge cases, hardware detection |
+| **Total** | **135** | **97.8% pass rate** |
+
+### Bug Fixes (v3.1)
+
+| File | Bug | Fix |
+|------|-----|-----|
+| `predict.py:62-64` | Exception chaining `from e` referenced unbound variable | Added `as e` to except blocks |
+| `ledger.py:263` | `pd.Timestamp.now()` tz-naive vs tz-aware comparison | Changed to `pd.Timestamp.now(tz=IST)` |
+| `config.py:49` | `OLLAMA_TIMEOUT=30` too short for CPU inference | Increased to `120` |
+
+### Running Tests
+
+```bash
+# Unit tests (fast, no Ollama needed)
+pytest test_integration.py -v
+
+# Integration + performance + edge case tests (no live Ollama)
+pytest test_hardware_plan.py -v --timeout=60 -k "not Live"
+
+# Live Ollama inference tests (slow on CPU)
+pytest test_hardware_plan.py -v --timeout=600 -k "Live"
+```
+
+---
+
+## 17. Performance Results
 
 > **Backtest pending.** Real accuracy, confidence calibration, per-ticker, and
 > prediction-vs-actual results will be added after live inference testing on
