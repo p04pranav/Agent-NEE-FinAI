@@ -233,17 +233,19 @@ Auto-detected at startup. CPU caps at 3 tickers for acceptable latency; GPU enab
 
 ## 12. Performance Targets
 
-| Operation | Target | Max | Measured (CPU) | Measured (GPU) |
-|-----------|--------|-----|----------------|----------------|
-| Full cycle (GPU, 10 tickers) | < 20s | < 60s | — | ~12s (phi3:mini, T4) |
-| Full cycle (CPU, 3 tickers) | < 15s | < 45s | ~7min (phi3:mini) | — |
-| Single agent inference (GPU) | < 500ms | < 2s | — | ~3s (phi3:mini, T4) |
-| Single agent inference (CPU) | < 3s | < 10s | ~62s (phi3:mini) | — |
-| Dashboard update | < 1ms | < 5ms | < 1ms | < 1ms |
-| WebSocket broadcast | < 10ms | < 50ms | < 10ms | < 10ms |
-| Prediction accuracy | 62%+ | > 50% | — | 33.9% (phi3:mini, synthetic) |
-| CSV data load (all tickers) | < 500ms | < 2s | < 200ms | < 200ms |
-| Ledger write (Phase 1) | < 50ms | < 200ms | < 50ms | < 50ms |
+| Operation | Target | Max | Measured (CPU) | Measured (GPU) | Target (LLaMA 3.x 8B) |
+|-----------|--------|-----|----------------|----------------|----------------------|
+| Full cycle (GPU, 10 tickers) | < 20s | < 60s | — | ~12s (phi3:mini, T4) | **~3s (A100)** |
+| Full cycle (CPU, 3 tickers) | < 15s | < 45s | ~7min (phi3:mini) | — | — |
+| Single agent inference (GPU) | < 500ms | < 2s | — | ~3s (phi3:mini, T4) | **< 1s (A100)** |
+| Single agent inference (CPU) | < 3s | < 10s | ~62s (phi3:mini) | — | — |
+| Dashboard update | < 1ms | < 5ms | < 1ms | < 1ms | < 1ms |
+| WebSocket broadcast | < 10ms | < 50ms | < 10ms | < 10ms | < 10ms |
+| Prediction accuracy | 62%+ | > 50% | — | 33.9% (phi3:mini, synthetic) | **55% (real NSE data)** |
+| HIGH confidence accuracy | 70%+ | > 55% | — | 26.1% (inverted) | **62% (calibrated)** |
+| Correlation (r) | > 0.3 | > 0.1 | — | ~0.0 | **0.20** |
+| CSV data load (all tickers) | < 500ms | < 2s | < 200ms | < 200ms | < 200ms |
+| Ledger write (Phase 1) | < 50ms | < 200ms | < 50ms | < 50ms | < 50ms |
 
 ---
 
@@ -429,3 +431,38 @@ correct direction; red dots indicate incorrect. The low correlation
 ![Latency Profile](visuals/latency_profile.png)
 *Figure: Inference latency distribution on Tesla T4 GPU. Median ~12s
 per full prediction cycle (3 agents + synthesizer).*
+
+### 17.7 Performance Roadmap: Current vs Target
+
+The baseline validation confirms the pipeline works end-to-end. With LLaMA 3.x
+8B on real NSE data and LoRA SFT training, the system targets 55% directional
+accuracy — grounded in Kim et al. (2024) and Hu et al. (2022).
+
+| Metric | Current (phi3:mini) | Target (LLaMA 3.x 8B) | Basis |
+|--------|-------------------|----------------------|-------|
+| Directional accuracy | 33.9% | **55%** | Kim et al. 2024 |
+| HIGH confidence | 26.1% | **62%** | Multi-agent consensus |
+| MED confidence | 34.1% | **52%** | Partial agreement |
+| LOW confidence | 40.0% | **40%** | Near random |
+| Correlation (r) | ~0.0 | **0.20** | Financial LLM benchmarks |
+| Inference latency | ~12s (T4) | **3s** (A100) | Hardware scaling |
+| Training gain | 0% | **+5%** | LoRA SFT (Hu et al. 2022) |
+
+![Accuracy: Current vs Target](visuals/comparison_accuracy.png)
+*Figure: Accuracy trajectory — current baseline (33.9%) vs target curve
+reaching 55% over 200 trading days with LoRA SFT training.*
+
+![Calibration: Current vs Target](visuals/comparison_calibration.png)
+*Figure: Confidence calibration — current inverted pattern vs target
+properly ordered (HIGH 62% > MED 52% > LOW 40%).*
+
+![Per-Ticker: Current vs Target](visuals/comparison_ticker_accuracy.png)
+*Figure: Per-ticker accuracy — target bars consistently above 50% random
+baseline across all 10 NSE tickers.*
+
+![Prediction Quality: Current vs Target](visuals/comparison_prediction_quality.png)
+*Figure: Prediction quality — current scattered (r≈0) vs target correlated
+(r=0.20) returns.*
+
+![Latency: T4 vs A100](visuals/comparison_latency.png)
+*Figure: Inference speed — A100 provides ~4x throughput over T4.*
