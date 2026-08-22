@@ -74,3 +74,55 @@ SPEC.md, and Research_Paper.md.
 - [ ] HIGH > MED > LOW confidence calibration — **NOT MET** (inverted: LOW > MED > HIGH)
 - [x] At least 500 resolved predictions in replay buffer — **MET** (490, close to target)
 - [x] All 10 tickers represented — **MET**
+
+---
+
+## Performance Roadmap
+
+**Status**: In Progress
+**Priority**: High
+
+### Target Performance (LLaMA 3.x 8B + LoRA SFT)
+
+| Metric | Current | Target | Status |
+|--------|---------|--------|--------|
+| Directional accuracy | 33.9% | **55%** | Pending |
+| HIGH confidence | 26.1% | **62%** | Pending |
+| MED confidence | 34.1% | **52%** | Pending |
+| LOW confidence | 40.0% | **40%** | Pending |
+| Correlation (r) | ~0.0 | **0.20** | Pending |
+| Inference latency | ~12s (T4) | **3s** (A100) | Pending |
+| Training gain | 0% | **+5%** | Pending |
+
+### Milestones
+
+- [x] **Phase 1: Baseline Validation** — Pipeline validated end-to-end with phi3:mini
+  - 490 predictions across 10 tickers
+  - All modules (data, indicators, agents, ledger, resolution) working
+  - Backtest framework operational (`backtest.py`)
+- [ ] **Phase 2: Real NSE Data** — Replace synthetic CSVs with actual market data
+  - Download 200 trading days of 5-min OHLCV from Yahoo Finance / NSE
+  - Validate indicator computation on real data
+  - Run backtest on real data with phi3:mini (expected: ~38-42%)
+- [ ] **Phase 3: LLaMA 3.x 8B Evaluation** — Test larger model without training
+  - Pull LLaMA 3.1 8B via Ollama
+  - Run same backtest framework
+  - Expected: ~48-52% accuracy (based on Kim et al. 2024)
+- [ ] **Phase 4: LoRA SFT Training** — Train on correct predictions
+  - Collect 500+ resolved predictions from Phase 3
+  - Run LoRA SFT pipeline (`learn.py`)
+  - Expected: +3-5% improvement over base model
+- [ ] **Phase 5: Target Performance** — Achieve 55% directional accuracy
+  - Fine-tune on real NSE data with larger model
+  - Validate confidence calibration (HIGH > MED > LOW)
+  - Generate final comparison charts with measured data
+
+### Comparison Charts
+
+Generated `visuals/comparison_*.png` showing current vs target performance:
+
+![Accuracy Roadmap](visuals/comparison_accuracy.png)
+![Calibration Roadmap](visuals/comparison_calibration.png)
+![Per-Ticker Roadmap](visuals/comparison_ticker_accuracy.png)
+![Prediction Quality](visuals/comparison_prediction_quality.png)
+![Latency Comparison](visuals/comparison_latency.png)
