@@ -233,17 +233,17 @@ Auto-detected at startup. CPU caps at 3 tickers for acceptable latency; GPU enab
 
 ## 12. Performance Targets
 
-| Operation | Target | Max | Measured (CPU) |
-|-----------|--------|-----|----------------|
-| Full cycle (GPU, 10 tickers) | < 20s | < 60s | — |
-| Full cycle (CPU, 3 tickers) | < 15s | < 45s | ~7min (phi3:mini) |
-| Single agent inference (GPU) | < 500ms | < 2s | — |
-| Single agent inference (CPU) | < 3s | < 10s | ~62s (phi3:mini) |
-| Dashboard update | < 1ms | < 5ms | < 1ms |
-| WebSocket broadcast | < 10ms | < 50ms | < 10ms |
-| Prediction accuracy | 62%+ | > 50% | — |
-| CSV data load (all tickers) | < 500ms | < 2s | < 200ms |
-| Ledger write (Phase 1) | < 50ms | < 200ms | < 50ms |
+| Operation | Target | Max | Measured (CPU) | Measured (GPU) |
+|-----------|--------|-----|----------------|----------------|
+| Full cycle (GPU, 10 tickers) | < 20s | < 60s | — | ~12s (phi3:mini, T4) |
+| Full cycle (CPU, 3 tickers) | < 15s | < 45s | ~7min (phi3:mini) | — |
+| Single agent inference (GPU) | < 500ms | < 2s | — | ~3s (phi3:mini, T4) |
+| Single agent inference (CPU) | < 3s | < 10s | ~62s (phi3:mini) | — |
+| Dashboard update | < 1ms | < 5ms | < 1ms | < 1ms |
+| WebSocket broadcast | < 10ms | < 50ms | < 10ms | < 10ms |
+| Prediction accuracy | 62%+ | > 50% | — | 33.9% (phi3:mini, synthetic) |
+| CSV data load (all tickers) | < 500ms | < 2s | < 200ms | < 200ms |
+| Ledger write (Phase 1) | < 50ms | < 200ms | < 50ms | < 50ms |
 
 ---
 
@@ -374,17 +374,58 @@ pytest test_hardware_plan.py -v --timeout=600 -k "Live"
 
 ## 17. Performance Results
 
-> **Backtest pending.** Real accuracy, confidence calibration, per-ticker, and
-> prediction-vs-actual results will be added after live inference testing on
-> historical NSE data.
->
-> ![Backtest Pending](visuals/backtest_pending.png)
+### 17.1 Backtest Summary (GPU — Tesla T4 16GB)
 
-### 16.1 Expected Latency Profile
+Ran 490 predictions across 10 NSE tickers using phi3:mini on NVIDIA Tesla T4
+with CUDA 13.0. Each prediction cycle included 3 specialist agents + 1
+synthesizer, totaling ~12s per prediction.
 
-Based on hardware benchmarks, the system is expected to achieve the following
-inference latency distribution:
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Total predictions | 490 | 500+ | Near target |
+| Tickers covered | 10/10 | 10 | Met |
+| Overall accuracy | 33.9% | > 50% | Below target |
+| HIGH confidence accuracy | 26.1% (n=46) | > 70% | Below target |
+| MED confidence accuracy | 34.1% (n=399) | 55–65% | Below target |
+| LOW confidence accuracy | 40.0% (n=45) | 40–50% | Met |
+| Avg inference latency (GPU) | ~12s | < 20s | Met |
+| Total backtest time | ~90 min | — | — |
 
-![Expected Latency Profile](visuals/latency_profile.png)
-*Figure: Expected inference latency distribution — GPU mode (10 tickers, ~800ms mean)
-vs CPU mode (3 tickers, ~4s mean). Actual performance may vary by hardware.*
+> **Note:** Below-random accuracy (33.9%) is expected with phi3:mini (3.8B
+> parameters) on synthetic random-walk data. The model lacks the capacity for
+> reliable financial reasoning. A larger model (LLaMA 3.x 8B) on real NSE data
+> is the recommended next step. The infrastructure pipeline is fully validated.
+
+### 17.2 Accuracy Over Time
+
+![Accuracy Over Time](visuals/accuracy_over_time.png)
+*Figure: Rolling prediction accuracy across the 490-prediction backtest.
+The green shaded area indicates above-random performance; red indicates
+below-random. Accuracy fluctuates around 30–40% with phi3:mini.*
+
+### 17.3 Accuracy by Ticker
+
+![Accuracy by Ticker](visuals/accuracy_by_ticker.png)
+*Figure: Directional accuracy per NSE ticker. Results vary significantly
+across tickers, with some showing above-random performance and others
+well below, consistent with random-walk synthetic data.*
+
+### 17.4 Confidence Calibration
+
+![Confidence Calibration](visuals/confidence_calibration.png)
+*Figure: Accuracy by confidence level. Ideally HIGH > MED > LOW; the
+observed inversion (LOW > MED > HIGH) indicates the model's confidence
+is not well-calibrated — a known limitation of small LLMs.*
+
+### 17.5 Predicted vs Actual Returns
+
+![Predicted vs Actual](visuals/pred_vs_actual.png)
+*Figure: Scatter of predicted vs actual returns. Green dots indicate
+correct direction; red dots indicate incorrect. The low correlation
+(r ≈ 0) confirms phi3:mini cannot reliably predict magnitude.*
+
+### 17.6 Inference Latency
+
+![Latency Profile](visuals/latency_profile.png)
+*Figure: Inference latency distribution on Tesla T4 GPU. Median ~12s
+per full prediction cycle (3 agents + synthesizer).*
