@@ -250,7 +250,8 @@ All agents execute sequentially on the same Ollama instance. This design choice 
 The `LocalBandSDK` provides an in-memory room/message simulation for agent coordination, where each prediction cycle creates a new room, agents post their analyses as messages, and the synthesizer reads the full room history.
 
 ![Figure 2: Agent Accuracy Comparison](visuals/agent_comparison.png)
-*Figure 2: Comparative accuracy of individual agents versus the multi-agent synthesizer, demonstrating that the ensemble approach reduces single-agent bias and improves directional prediction accuracy*
+*Figure 2: Multi-agent accuracy comparison by confidence level, showing the
+current baseline performance that the roadmap targets aim to improve (see Section 7.7).*
 
 ---
 
@@ -306,10 +307,10 @@ After market close (15:30 IST), the system automatically initiates fine-tuning u
 5. **Validation**: 10% split with automatic rollback if validation loss exceeds the previous best
 6. **Checkpointing**: Versioned adapter storage with automatic cleanup (max 10 adapters retained)
 
-![Figure 8: Training Loss](visuals/training_loss.png)
-*Figure 8: LoRA SFT training loss curve (placeholder — training was not
-executed during this backtest as it requires CUDA 12.1+ with 12GB+ VRAM
-and sufficient resolved predictions for convergence.)*
+![Figure 3: Training Loss](visuals/training_loss.png)
+*Figure 3: LoRA SFT training loss curve. Training requires CUDA 12.1+ with
+12GB+ VRAM and sufficient resolved predictions — pending Phase 4 of the
+performance roadmap (see Section 7.7).*
 
 #### LoRA Hyperparameters
 
