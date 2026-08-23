@@ -1,7 +1,7 @@
 # Agent-NEE FinAI — Complete Technical Specification
 
 **Full Name**: Agentic Supervised Fine-Tuning — Neural Execution Engine for Financial Analytics
-**Version**: 3.1 | **Author**: Pranav S | **License**: MIT
+**Version**: 3.1 | **Authors**: Pranav S, Kushal H | **License**: MIT
 
 ---
 

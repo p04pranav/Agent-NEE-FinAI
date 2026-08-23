@@ -1,9 +1,9 @@
 # Agent-NEE FinAI: A Multi-Agent Local LLM Framework for Stock Price Prediction on the Indian National Stock Exchange
 
-**Author**: Pranav S  
-**Affiliation**: Independent Researcher  
+**Authors**: Pranav S, Kushal H  
+**Affiliation**: Independent Researchers  
 **Date**: August 2026  
-**Correspondence**: yo4pranav@gmail.com
+**Correspondence**: yo4pranav@gmail.com, kushal98457@gmail.com
 
 ---
 

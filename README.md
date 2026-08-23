@@ -351,9 +351,10 @@ pytest test_hardware_plan.py -v --timeout=600 -k "Live"
 
 MIT License — See [LICENSE](LICENSE) for details.
 
-## 👤 Author
+## 👤 Authors
 
 **Pranav S** — [github.com/p04pranav](https://github.com/p04pranav)
+**Kushal H** — [github.com/kushal98457-ctrl](https://github.com/kushal98457-ctrl)
 
 ---
 
